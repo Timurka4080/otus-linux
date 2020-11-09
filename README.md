@@ -1,11 +1,11 @@
 # Инструкции
-Reid и разбиени на разделы происходит по средствам Vagrantfile
+##Reid и разбиени на разделы происходит по средствам Vagrantfile
 для проверки:
 
-cd ~\n
-git clone git@github.com:Timurka4080/otus-linux.git\n
-cd otus-linux/test/\n
-vagrant up
+    cd ~
+    git clone git@github.com:Timurka4080/otus-linux.git
+    cd otus-linux/test/
+    vagrant up
 
 
 
