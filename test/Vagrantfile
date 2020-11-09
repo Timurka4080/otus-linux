@@ -11,30 +11,30 @@ MACHINES = {
 			:port => 1
 		},
 		:sata2 => {
-            :dfile => './sata2.vdi',
-            :size => 250, # Megabytes
+                        :dfile => './sata2.vdi',
+                        :size => 250, # Megabytes
 			:port => 2
 		},
-        :sata3 => {
-            :dfile => './sata3.vdi',
-            :size => 250,
-            :port => 3
-        },
-        :sata4 => {
-            :dfile => './sata4.vdi',
-            :size => 250, # Megabytes
-            :port => 4
-         },
-         :sata5 => {
-            :dfile => './sata5.vdi',
-            :size => 250, # Megabytes
-            :port => 5
-         },
-         :sata6 => {
-             :dfile => './sata6.vdi',
-             :size => 250, # Megabytes
-             :port => 6
-          }
+                :sata3 => {
+                        :dfile => './sata3.vdi',
+                        :size => 250,
+                        :port => 3
+                },
+                :sata4 => {
+                        :dfile => './sata4.vdi',
+                        :size => 250, # Megabytes
+                        :port => 4
+                },
+                :sata5 => {
+                        :dfile => './sata5.vdi',
+                        :size => 250, # Megabytes
+                        :port => 5
+                },
+                :sata6 => {
+                        :dfile => './sata6.vdi',
+                        :size => 250, # Megabytes
+                        :port => 6
+                }
 	}
   },
 }
@@ -65,7 +65,13 @@ Vagrant.configure("2") do |config|
 	      mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
 	      yum install -y mdadm smartmontools hdparm gdisk
-		  wipefs -a /dev/sd[b-e] && mdadm --create /dev/md0 --level=10 --raid-devices=4 /dev/sd[b-e]
+	      wipefs -a /dev/sd[b-g] && mdadm --create --verbose /dev/md0 --metadata=0.90 --level=10 --raid-devices=6 /dev/sd[b-g]
+	      parted /dev/md0 -s  mklabel gpt
+              parted /dev/md0 -s mkpart primary 1MiB 100MiB \
+			mkpart primary 100MiB 200Mib \
+			mkpart primary 200MiB 300Mib \
+			mkpart primary 300MiB 400Mib \
+			mkpart primary 400MiB 500Mib \	
   	  SHELL
       end
   end
