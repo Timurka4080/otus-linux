@@ -2,9 +2,9 @@
 Reid и разбиени на разделы происходит по средствам Vagrantfile
 для проверки:
 
-cd ~
-git clone git@github.com:Timurka4080/otus-linux.git
-cd otus-linux/test/
+cd ~\n
+git clone git@github.com:Timurka4080/otus-linux.git\n
+cd otus-linux/test/\n
 vagrant up
 
 
