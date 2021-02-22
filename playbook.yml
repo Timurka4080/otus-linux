@@ -1,0 +1,189 @@
+---
+- name: inetRouter | Config network
+  hosts: inetRouter
+  become: true
+  vars:
+    gateway: '192.168.255.2'
+    network: '192.168.0.0/16'
+  tasks:
+    - name: inetRouter | Create static route
+      template: 
+        src: ./templates/route-eth1.j2
+        dest: /etc/sysconfig/network-scripts/route-eth1
+      notify: restart network
+  
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted      
+
+- name: centralRouter | Config network
+  hosts: centralRouter
+  vars:
+    gateway: '192.168.255.1'
+    ip: '192.168.255.2'
+    network1off: '192.168.2.0/24'
+    gateway1off: '192.168.255.6'  
+    network2off: '192.168.1.0/24'
+    gateway2off: '192.168.255.10'     
+  become: true
+
+  tasks:
+    - name: centralRouter | Forwarding enable
+      shell: sysctl net.ipv4.conf.all.forwarding=1
+
+    - name: centralRouter | Create static route
+      template: 
+        src: ./templates/route-eth5.j2
+        dest: /etc/sysconfig/network-scripts/route-eth5
+      notify: restart network
+
+    - name: centralRouter | Create static route
+      template: 
+        src: ./templates/route-eth6.j2
+        dest: /etc/sysconfig/network-scripts/route-eth6
+      notify: restart network      
+
+
+    - name: centralRouter | Configure def gateway
+      template:
+        src: ifcfg-eth1.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+      notify: restart network  
+
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted
+
+- name: centralServer | Config network
+  hosts: centralServer
+  vars:
+    gateway: '192.168.0.1'
+    ip: '192.168.0.2'     
+  become: true 
+
+  tasks:  
+    - name: centralServer | Configure gateway
+      template:
+        src: ifcfg-eth1.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+      notify: restart network  
+
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted
+
+- name: office1Server | Config network
+  hosts: office1Server
+  vars:
+    gateway: '192.168.2.65'
+    ip: '192.168.2.66'  
+  become: true 
+
+  tasks:  
+    - name: office1Server | Diseblet def route to nat
+      shell: echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0 
+  
+    - name: office1Server | Configure gateway
+      template:
+        src: ifcfg-eth1.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+      notify: restart network     
+      
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted      
+  
+- name: office2Server | Config network
+  hosts: office2Server
+  vars:
+    gateway: '192.168.1.129'
+    ip: '192.168.1.130'  
+  become: true 
+
+  tasks:   
+    - name: office2Server | Diseblet def route to nat
+      shell: echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+
+    - name: office2Server | Configure gateway
+      template:
+        src: ifcfg-eth1.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+      notify: restart network     
+      
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted          
+  
+- name: office1Router | Config network
+  hosts: office1Router
+  become: true
+  vars:
+    ip: '192.168.255.6'
+    gateway: '192.168.255.5'
+    network: '192.168.0.0/16'
+
+  tasks:
+    - name: office1Router | Diseblet def route to nat
+      shell: echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0    
+
+    - name: office1Router | Forwarding enable
+      shell: sysctl net.ipv4.conf.all.forwarding=1
+
+    - name: office2Server | Configure gateway
+      template:
+        src: ifcfg-eth1.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth1  
+
+    - name: office1Router | Create static route
+      template: 
+        src: ./templates/route-eth1.j2
+        dest: /etc/sysconfig/network-scripts/route-eth1
+      notify: restart network
+  
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted  
+
+- name: office2Router | Config network
+  hosts: office2Router
+  become: true
+  vars:
+    ip: '192.168.255.10'
+    gateway: '192.168.255.9'
+    network: '192.168.0.0/16'
+
+  tasks:
+    - name: office2Router | Diseblet def route to nat
+      shell: echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0 
+
+    - name: office2Router | Forwarding enable
+      shell: sysctl net.ipv4.conf.all.forwarding=1
+
+    - name: office2Router | Configure gateway
+      template:
+        src: ifcfg-eth1.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth1  
+
+    - name: office2Router | Create static route
+      template: 
+        src: ./templates/route-eth1.j2
+        dest: /etc/sysconfig/network-scripts/route-eth1
+      notify: restart network
+  
+  handlers:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted                  
