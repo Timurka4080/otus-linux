@@ -1,0 +1,10 @@
+---
+- name: inetRouter | Config network
+  hosts: network
+  become: true
+
+  tasks:
+    - name: restart network
+      systemd:
+        name: network
+        state: restarted   
